@@ -6,13 +6,15 @@ Because of the depth and complexity of simply uploading, for now, this package w
 
 ``` javascript
 var B2 = require('backblaze-easy');
+
 var b2 = new B2(accountId, applicationKey);
+
 b2.uploadFile({
-    file: fileBuffer,
-    bucket: 'swooty',
-    name:'swiggity-swooty.mp4'
+    'file': fileBuffer, // Perhaps the result of fs.readFile()
+    'bucket': 'swooty', // Optional! A bucketId or bucketName
+    'name': 'swiggity-swooty.mp4' // Optional! Defaults to sha1 hash of file
 }, function(err, res) {
-    console.log(err, res);
+    console.log('Done!', err, res);
 });
 ```
 
@@ -21,13 +23,13 @@ b2.uploadFile({
 ``` javascript
 B2#uploadFile(options, callback)
 ```
-Uploads a file from a Buffer, using a chosen file name and bucket.
+Uploads a file from a Buffer, using a chosen file name and bucket. The options are as follows:
 
-- `file` [ *Buffer* ] File to be uploaded, can be a String pointing to a directory, or a Buffer of a file already read.
-- `options` [ *Object* ] | Options for the upload, can include properties `bucket` which can be a bucketName or bucketId, and `name` which will name the file for download.
-- `callback` [ *Function* ] Node-style callback `callback(err, res)`
+- `file` - Buffer of a file already read.
+- `bucket` - Optional, can be a bucketName or bucketId
+- `name` - Optional, rename the file for storage and download.
 
 ``` javascript
 B2#listBuckets(callback)
 ```
-Gets the bucket details from the server and invokes `callback(err, buckets)` with an array of buckets.
+Gets the bucket details from the server and calls back with an array of buckets.
