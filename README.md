@@ -26,6 +26,8 @@ Uploads a file from a Buffer, using a chosen file name and bucket. The options a
 - `bucket` - Optional, can be a bucketName or bucketId
 - `name` - Optional, rename the file for storage and download.
 
+Returns `url` which is a download link!
+
 ## B2#listBuckets(callback)
 
 Calls back with an array of buckets.
