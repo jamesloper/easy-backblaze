@@ -1,33 +1,25 @@
-Easy Backblaze is designed to be the simplest way possible to make Backblaze B2 API calls. It sports a redesigned API that greatly simplifies how files are uploaded.
+`npm install --save easy-backblaze`
+
+Easy Backblaze is designed to be the absolute simplest way possible to make Backblaze B2 API calls. It sports a redesigned API that makes it so you don't have to find an upload URL yourself.
 
 ``` javascript
 var B2 = require('backblaze-easy');
 var b2 = new B2(accountId, applicationKey);
-b2.upload('swiggity-swooty.mp4', function(err, res) {
+b2.uploadFile(file, {bucketId: 'swooty', fileName:'swiggity-swooty.mp4'}, function(err, res) {
     console.log(err, res);
 });
 ```
 
-## Create B2 Client Instance
-
-
-## Methods
-``` javascript 
-b2.upload(String bucketId, String fileName, Buffer fileBuffer, [Function callback]);
-```
-
-## Example
-
-Reads "swiggity-swooty.mp4" to a buffer, uploads to Backblaze, and logs the result:
+## Documentation of the API
 
 ``` javascript
-fs.readFile('swiggity-swooty.mp4', function(fileBuffer) {
-    b2.upload('gefb39f44d657ca391r', fileName, fileBuffer, function(err, res) {
-        if (err) {
-            console.log('Failed:', err);
-        } else {
-            console.log('It worked:', res);
-        }
-    });
-});
+B2#uploadFile(file, options, callback)
+```
+
+- `file` [ *Buffer* ] File to be uploaded, can be a String pointing to a directory, or a Buffer of a file already read.
+- `options` [ *Object* ] | Options for the upload, can include properties `bucketId` to direct an upload to a specific bucket, and `fileName` which will name the file for download.
+- `callback` [ *Function* ] Node-style callback invoked with (`err`, `res`)
+
+``` javascript
+B2#listBuckets(file, options, callback)
 ```
