@@ -9,7 +9,7 @@ var b2 = new B2('account_id', 'application_key');
 b2.uploadFile({
     file: '/var/tmp/test.mp4', // Required, just a path to a file
     bucket: 'swooty', // Optional, a bucket name, defaults to the first bucket
-    name: 'swiggity-swooty.mp4' // Optional, defaults to sha1 hash of file
+    name: 'swiggity-swooty.mp4' // Optional, can override the file name
 }, function(err, res) {
     console.log('Done!', err, res);
 });
