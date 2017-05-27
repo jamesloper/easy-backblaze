@@ -1,133 +1,64 @@
-var crypto = require('crypto');
-var https = require('https');
-var request = require('request');
-
-function sha1(data) {
-	var generator = crypto.createHash('sha1');
-	generator.update(data);
-	return generator.digest('hex');
-}
-
-function requestJSON(opts, callback) {
-	opts.json = true;
-	
-	var req = request(opts, function(err, res, data) {		
-		if (err) {
-			callback(err);
-		} else if (res.statusCode != 200) {
-			console.error(data);
-			callback(new Error(data.code, data.message));
-		} else {
-			callback(null, data);
-		}
-	});
-	return req;
-}
+var Backend = require('./rawbackend.js');
 
 class B2 {
-	constructor(accountId, applicationKey) {
-		this.props = {
-			auth: {user:accountId, password:applicationKey},
-			buckets: [],
-			settings: null,
-		};
+	constructor(user, password) {
+		this.auth = {'user': user, 'password': password};
+		this.settings = {};
+		this.buckets = [];
 	}
 	
-	init(callback) {
-		var { auth, settings, buckets } = this.props;
-		if (settings) return callback();
+	init(callback) {		
+		Backend.authorizeAccount(this.auth, (err, settings) => {
+			if (err) return callback(err);
 
-		requestJSON({
-			'method': 'GET',
-			'url': 'https://api.backblazeb2.com/b2api/v1/b2_authorize_account',
-			'auth': auth,
-		}, (err, data) => {
-			if (err) {
-				callback(err);
-			} else {
-				this.props.settings = data;
+			this.settings = settings;
+			
+			Backend.listBuckets(settings, (err, data) => {
+				if (err) return callback(err);
+				this.buckets = data.buckets;
 				callback();
-			}
+			});
 		});
 	}
 	
 	listBuckets(callback) {
 		this.init(err => {
-			if (err) return callback(err);
-
-			var { auth, settings, buckets } = this.props;
-						
-			requestJSON({
-				'method': 'POST',
-				'url': `${settings.apiUrl}/b2api/v1/b2_list_buckets`,
-				'body': {'accountId': settings.accountId},
-				'headers': {
-					'Authorization': settings.authorizationToken,
-				}
-			}, (err, data) => {
-				if (err) {
-					callback(err);
-				} else {				
-					var { buckets } = data;
-					if (!buckets || buckets.length == 0) {
-						callback(new Error(404, 'No buckets found, please create one', data));
-					} else {
-						this.props.buckets = buckets;
-						callback(null, buckets);
-					}
-					
-				}
+			if (err) return callback(err);						
+			
+			Backend.listBuckets(this.settings, (err, data) => {
+				if (err) return callback(err);
+				callback(null, data.buckets);
 			});
 		});
 	}
 	
-	uploadFile(fileBuffer, opts = {}, callback) {
-		if (!fileBuffer instanceof Buffer) throw new Error(500, 'First paramater <fileBuffer> needs to ba a buffer!');
-		if (!opts instanceof Object) throw new Error(500, 'Second paramater <opts> needs to ba an object!');
-		if (!callback instanceof Function) throw new Error(500, 'Third paramater <callback> needs to ba a function!');
+	uploadFile(options, callback) {
+		if (!options instanceof Object) 
+			throw new Error(500, '<options> needs to ba an object: {*file:Buffer, bucket:String, name:String}');
+		if (!callback || !callback instanceof Function) 
+			throw new Error(500, 'No callback was passed');
+		if (!options.file || !options.file instanceof Buffer) 
+			throw new Error(500, '<options.file> needs to be a buffer!');
+		if (options.name && !options.name instanceof String)
+			throw new Error(500, '<options.name> must be a string!');
+		if (options.bucket && !options.bucket) 
+			throw new Error(404, '<options.bucket> must be a bucketId or the name of a bucket!');
 		
-		this.listBuckets(err => {
+		this.init(err => {
 			if (err) return callback(err);
 
-			const { settings, auth, buckets } = this.props;
-						
-			const fileHash = sha1(fileBuffer);
-						
-			opts = Object.assign({
-				fileName: fileHash,
-				bucketId: buckets[0].bucketId,
-			}, opts);
-						
-			requestJSON({
-				'method': 'POST',
-				'url': `${settings.apiUrl}/b2api/v1/b2_get_upload_url`,
-				'body': {'bucketId': opts.bucketId},
-				'headers': {
-					'Authorization': settings.authorizationToken,
-				}
-			}, function(err, res) {
-				if (err) {
-					callback(err);
-				} else {
-					var req = requestJSON({
-						'method': 'POST',
-						'url': res.uploadUrl,
-						'headers': {
-							'Authorization': res.authorizationToken,
-							'Content-Type': 'b2/x-auto',
-							'X-Bz-File-Name': opts.fileName,
-							'X-Bz-Content-Sha1': fileHash,
-						},
-						'body': fileBuffer.toString(),
-					}, function(err, data) {
-						if (err) {
-							callback(err);							
-						} else {
-							console.log('UPLOAD RESULT:', data);
-							callback(null, err);							
-						}
-					});
-				}
+			let bucket = this.buckets[0];
+			if (options.bucket) {
+				const bucketByName = this.buckets.find(r => r.bucketName == options.bucket);
+				const bucketById = this.buckets.find(r => r.bucketId == options.bucket)
+				bucket = bucketByName || bucketById;
+				if (!bucket) throw new Error(404, `Bucket with id or name "${options.bucket}" could not be found`);
+			}
+			
+			Backend.getUploadUrl(this.settings, bucket.bucketId, (err, uploadUrl) => {
+				if (err) return callback(err);
+				
+				Backend.uploadFile(uploadUrl, options.file, options.name, callback);
 			});
 		});
 	}
