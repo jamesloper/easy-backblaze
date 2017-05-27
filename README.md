@@ -7,7 +7,7 @@ Because of the depth and complexity of simply uploading, for now, this package w
 ``` javascript
 var B2 = require('backblaze-easy');
 
-var b2 = new B2(accountId, applicationKey);
+var b2 = new B2('account_id', 'application_key');
 
 b2.uploadFile({
     'file': fileBuffer, // Perhaps the result of fs.readFile()
@@ -18,18 +18,14 @@ b2.uploadFile({
 });
 ```
 
-## Built-in Methods
+## B2#uploadFile(options, callback)
 
-``` javascript
-B2#uploadFile(options, callback)
-```
 Uploads a file from a Buffer, using a chosen file name and bucket. The options are as follows:
 
 - `file` - Buffer of a file already read.
 - `bucket` - Optional, can be a bucketName or bucketId
 - `name` - Optional, rename the file for storage and download.
 
-``` javascript
-B2#listBuckets(callback)
-```
-Gets the bucket details from the server and calls back with an array of buckets.
+## B2#listBuckets(callback)
+
+Calls back with an array of buckets.
