@@ -1,10 +1,7 @@
 `npm install --save easy-backblaze`
 
-A simpler reimagination of the Backblaze API. Upload a file in **one** call, just like in S3! Because of the depth and complexity of simply uploading, for now, this package will focus only on uploading. 
+A simpler reimagination of the Backblaze API. Upload a file in **one** call, just like in S3! Because of the depth and complexity of simply uploading, for now, this package will focus only on uploading a file. 
 
-Backblaze, feel free to PR!
-
-## Setup
 ``` javascript
 var B2 = require('backblaze-easy');
 var b2 = new B2('account_id', 'application_key');
