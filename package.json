@@ -1,0 +1,27 @@
+{
+  "name": "easy-backblaze",
+  "version": "1.0.0",
+  "description": "Easy-to-use Backblaze API",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesloper/backblaze-easy.git"
+  },
+  "keywords": [
+    "backblaze",
+    "b2",
+    "upload"
+  ],
+  "author": "James Loper",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jamesloper/backblaze-easy/issues"
+  },
+  "homepage": "https://github.com/jamesloper/backblaze-easy#readme",
+  "dependencies": {
+    "request": "^2.81.0"
+  }
+}
