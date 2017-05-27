@@ -1,13 +1,6 @@
 `npm install --save easy-backblaze`
 
-A simpler reimagination of the Backblaze API. Improvements over the raw API:
-
-- Passes around auth info to all requests, removing the need to track permanent/temp keys
-- Fetches the a valid upload URL
-- Adds support for referring to buckets by name
-- Exposes all this as one easy API call
-
-Because of the depth and complexity of simply uploading, for now, this package will focus on uploading only. Please feel free to PR this on GitHub.
+A simpler reimagination of the Backblaze API. Upload a file in **one** call, just like in S3! Because of the depth and complexity of simply uploading, for now, this package will focus on uploading only. Please feel free to PR this on GitHub.
 
 ``` javascript
 var B2 = require('backblaze-easy');
