@@ -7,7 +7,7 @@ var B2 = require('easy-backblaze');
 var b2 = new B2('account_id', 'application_key');
 
 b2.uploadFile({
-    file: fileBuffer, // Buffer of a file, the result of fs.readFile()
+    file: '/var/tmp/test.mp4', // Required, just a path to a file
     bucket: 'swooty', // Optional, a bucket name, defaults to the first bucket
     name: 'swiggity-swooty.mp4' // Optional, defaults to sha1 hash of file
 }, function(err, res) {
