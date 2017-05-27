@@ -10,11 +10,6 @@ function sha1(data) {
 function requestJSON(url, options, callback) {
 	return request(url, options, function(err, res, data) {
 		if (typeof data == 'string') data = JSON.parse(data);
-		
-		console.log('REQUEST --------')
-		console.log(url);
-		console.log('----------------')
-		console.log(data);
 		if (err) return callback(err);
 		if (res.statusCode != 200) {
 			console.error('Server Error:', data);
@@ -64,4 +59,3 @@ module.exports = {
 		}, callback);
 	}
 };
-

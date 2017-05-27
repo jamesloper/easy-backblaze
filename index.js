@@ -1,33 +1,23 @@
+var path = require('path');
+var fs = require('fs');
 var Backend = require('./rawbackend.js');
+
+var transformBucket = r => ({_id: r.bucketId, name: r.bucketName});
 
 class B2 {
 	constructor(user, password) {
 		this.auth = {'user': user, 'password': password};
-		this.settings = {};
-		this.buckets = [];
 	}
 	
 	init(callback) {		
 		Backend.authorizeAccount(this.auth, (err, settings) => {
 			if (err) return callback(err);
 
-			this.settings = settings;
-			
 			Backend.listBuckets(settings, (err, data) => {
 				if (err) return callback(err);
-				this.buckets = data.buckets;
-				callback();
-			});
-		});
-	}
-	
-	listBuckets(callback) {
-		this.init(err => {
-			if (err) return callback(err);						
-			
-			Backend.listBuckets(this.settings, (err, data) => {
-				if (err) return callback(err);
-				callback(null, data.buckets);
+				if (data.buckets.length == 0) return callback(new Error(404, 'No buckets in B2 account!'));
+
+				callback(null, {buckets:data.buckets, settings:settings});
 			});
 		});
 	}
@@ -44,21 +34,28 @@ class B2 {
 		if (options.bucket && !options.bucket) 
 			throw new Error(404, '<options.bucket> must be a bucketId or the name of a bucket!');
 		
-		this.init(err => {
+		if (!options.name) options.name = path.basename(options.file);
+				
+		this.init((err, context) => {
 			if (err) return callback(err);
-
-			let bucket = this.buckets[0];
-			if (options.bucket) {
-				const bucketByName = this.buckets.find(r => r.bucketName == options.bucket);
-				const bucketById = this.buckets.find(r => r.bucketId == options.bucket)
-				bucket = bucketByName || bucketById;
-				if (!bucket) throw new Error(404, `Bucket with id or name "${options.bucket}" could not be found`);
-			}
 			
-			Backend.getUploadUrl(this.settings, bucket.bucketId, (err, uploadUrl) => {
+			let bucket = context.buckets[0];
+			if (options.bucket) {
+				bucket = context.buckets.find(r => r.bucketName == options.bucket);
+				if (!bucket) throw new Error(404, `Bucket with name "${options.bucket}" could not be found`);
+			}
+
+			fs.readFile(options.file, (err, fileBuffer) => {
 				if (err) return callback(err);
 				
-				Backend.uploadFile(uploadUrl, options.file, options.name, callback);
+				Backend.getUploadUrl(context.settings, bucket.bucketId, (err, uploadUrl) => {
+					if (err) return callback(err);
+					
+					Backend.uploadFile(uploadUrl, fileBuffer, options.name, (err, res) => {
+						if (err) return callback(err);
+						callback(null, `${context.settings.downloadUrl}/file/${bucket.bucketName}/${res.fileName}`);
+					});
+				});
 			});
 		});
 	}
