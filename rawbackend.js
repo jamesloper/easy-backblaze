@@ -8,15 +8,37 @@ function sha1(data) {
 }
 
 function requestJSON(url, options, callback) {
-	return request(url, options, function(err, res, data) {
-		if (typeof data == 'string') data = JSON.parse(data);
-		if (err) return callback(err);
-		if (res.statusCode != 200) {
-			console.error('Server Error:', data);
-			return callback(new Error(data.code, data.message));
-		}
-		callback(null, data);
-	});
+	var retryCount = 0;
+	
+	function call() {
+		retryCount++;
+		request(url, options, function(err, res, data) {
+			if (typeof data == 'string') data = JSON.parse(data);
+			if (err) return callback(err);
+			
+			switch (res.statusCode) {
+				case 429: // TOO MANY REQUESTS
+					var wait = (retryCount * 30);
+					console.warn(`B2: ${res.statusCode} ${data.code}, will retry in ${wait}s`);
+					setTimeout(call, wait * 1000);
+					break;
+				case 408: // REQUEST TIMEOUT
+				case 500: // INTERNAL ERROR
+				case 503: // SERVICE UNAVAILABLE
+					var wait = (retryCount * 2);
+					console.warn(`B2: ${res.statusCode} ${data.code}, will retry in ${wait}s`);
+					setTimeout(call, wait * 1000);
+					break;
+				case 200:
+					callback(null, data);
+					break;
+				default:
+					console.error('Server Error:', data);
+					callback(new Error(data.code, data.message));
+			}
+		});
+	};
+	call();
 }
 
 module.exports = {

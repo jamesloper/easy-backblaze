@@ -1,8 +1,6 @@
-var path = require('path');
-var fs = require('fs');
+var Path = require('path');
+var Fs = require('fs');
 var Backend = require('./rawbackend.js');
-
-var transformBucket = r => ({_id: r.bucketId, name: r.bucketName});
 
 class B2 {
 	constructor(user, password) {
@@ -34,8 +32,6 @@ class B2 {
 		if (options.bucket && !options.bucket) 
 			throw new Error(404, '<options.bucket> must be a bucketId or the name of a bucket!');
 		
-		if (!options.name) options.name = path.basename(options.file);
-				
 		this.init((err, context) => {
 			if (err) return callback(err);
 			
@@ -45,13 +41,14 @@ class B2 {
 				if (!bucket) throw new Error(404, `Bucket with name "${options.bucket}" could not be found`);
 			}
 
-			fs.readFile(options.file, (err, fileBuffer) => {
+			Fs.readFile(options.file, (err, fileBuffer) => {
 				if (err) return callback(err);
 				
 				Backend.getUploadUrl(context.settings, bucket.bucketId, (err, uploadUrl) => {
 					if (err) return callback(err);
 					
-					Backend.uploadFile(uploadUrl, fileBuffer, options.name, (err, res) => {
+					var fileName = options.name || Path.basename(options.file);
+					Backend.uploadFile(uploadUrl, fileBuffer, fileName, (err, res) => {
 						if (err) return callback(err);
 						callback(null, `${context.settings.downloadUrl}/file/${bucket.bucketName}/${res.fileName}`);
 					});
