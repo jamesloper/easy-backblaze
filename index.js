@@ -1,6 +1,7 @@
-var Path = require('path');
-var Fs = require('fs');
-var Backend = require('./rawbackend.js');
+var path = require('path');
+var fs = require('fs');
+var async = require('async');
+var backend = require('./rawbackend.js');
 
 class B2 {
 	constructor(user, password) {
@@ -8,10 +9,10 @@ class B2 {
 	}
 	
 	init(callback) {		
-		Backend.authorizeAccount(this.auth, (err, settings) => {
+		backend.authorizeAccount(this.auth, (err, settings) => {
 			if (err) return callback(err);
 
-			Backend.listBuckets(settings, (err, data) => {
+			backend.listBuckets(settings, (err, data) => {
 				if (err) return callback(err);
 				if (data.buckets.length == 0) return callback(new Error(404, 'No buckets in B2 account!'));
 
@@ -41,14 +42,14 @@ class B2 {
 				if (!bucket) throw new Error(404, `Bucket with name "${options.bucket}" could not be found`);
 			}
 
-			Fs.readFile(options.file, (err, fileBuffer) => {
+			fs.readFile(options.file, (err, fileBuffer) => {
 				if (err) return callback(err);
 				
-				Backend.getUploadUrl(context.settings, bucket.bucketId, (err, uploadUrl) => {
+				backend.getUploadUrl(context.settings, bucket.bucketId, (err, uploadUrl) => {
 					if (err) return callback(err);
 					
-					var fileName = options.name || Path.basename(options.file);
-					Backend.uploadFile(uploadUrl, fileBuffer, fileName, (err, res) => {
+					var fileName = options.name || path.basename(options.file);
+					backend.uploadFile(uploadUrl, fileBuffer, fileName, (err, res) => {
 						if (err) return callback(err);
 						callback(null, `${context.settings.downloadUrl}/file/${bucket.bucketName}/${res.fileName}`);
 					});
