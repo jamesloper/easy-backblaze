@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jamesloper/backblaze-easy.git"
+    "url": "git+https://github.com/jamesloper/easy-backblaze.git"
   },
   "keywords": [
     "backblaze",
@@ -18,9 +18,9 @@
   "author": "James Loper",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jamesloper/backblaze-easy/issues"
+    "url": "https://github.com/jamesloper/easy-backblaze/issues"
   },
-  "homepage": "https://github.com/jamesloper/backblaze-easy#readme",
+  "homepage": "https://github.com/jamesloper/easy-backblaze#readme",
   "dependencies": {
     "request": "^2.81.0"
   }
