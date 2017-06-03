@@ -1,6 +1,15 @@
 var path = require('path');
+var crypto = require('crypto');
 var fs = require('fs');
 var backend = require('./rawbackend.js');
+
+
+function randomString(length) {
+	const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+}
 
 class B2 {
 	constructor(user, password, config = {}) {
@@ -10,7 +19,7 @@ class B2 {
 	}
 	
 	init(callback) {
-		// If initted in the last minute don't bother initing again
+		// If initted in the last two minutes don't bother initing again
 		if (Date.now() < this._init.expires) 
 			return callback(null, this._init);
 		
@@ -21,7 +30,7 @@ class B2 {
 				if (err) return callback(err);
 				if (data.buckets.length == 0) return callback(new Error(404, 'no buckets in account'));
 				
-				this._init = {'buckets': data.buckets, 'settings': settings, 'expires': Date.now() + 60000};
+				this._init = {'buckets': data.buckets, 'settings': settings, 'expires': Date.now() + 120000};
 				callback(null, this._init);
 			});
 		});
@@ -33,23 +42,36 @@ class B2 {
 		if (!options.file || !options.file instanceof String) throw new Error(400, 'file needs to be a string');
 		if (options.name && !options.name instanceof String) throw new Error(400, 'name must be a string');
 		if (options.bucket && !options.bucket instanceof String) throw new Error(400, 'bucket must be a string');
+		if (options.password && !options.password instanceof String) throw new Error(400, 'password must be a string');
+		if (options.password && options.name) throw new Error(400, 'if you use a password you can not name the file');
 		
 		this.init((err, context) => {
 			if (err) return callback(err);
 			
+			// Pick the proper bucket based on defaults and user preference
 			let bucket = context.buckets[0];
 			let preferredBucket = options.bucket || this._config.bucket;
 			if (preferredBucket) {
 				bucket = context.buckets.find(r => r.bucketName == preferredBucket);
 				if (!bucket) throw new Error(404, `bucket ${options.bucket} could not be found`);
 			}
-
+			
+			// Buffer the target file into memory
 			fs.readFile(options.file, (err, fileBuffer) => {
 				if (err) return callback(err);
 				
+				// If a password is specified, encrypt the file
+				if (options.password) {
+					var cipher = crypto.createCipher('aes-256-ctr', options.password);
+					fileBuffer = Buffer.concat([cipher.update(buffer), cipher.final()]);
+					options.name = crypto.randomBytes(32).toString('hex');
+				}
+				
+				// Get an endpoint to upload to
 				backend.getUploadUrl(context.settings, bucket.bucketId, (err, uploadUrl) => {
 					if (err) return callback(err);
 					
+					// Upload it
 					var fileName = options.name || path.basename(options.file);
 					backend.uploadFile(uploadUrl, fileBuffer, fileName, (err, res) => {
 						if (err) return callback(err);
