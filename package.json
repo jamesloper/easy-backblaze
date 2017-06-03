@@ -1,14 +1,14 @@
 {
   "name": "easy-backblaze",
   "version": "1.1.1",
-  "description": "Easy-to-use Backblaze API",
+  "description": "A simpler re-imagination of the Backblaze API. Upload a file in one call, just like in S3, auto-retry, and encryption!",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jamesloper/backblaze-easy.git"
+    "url": "git+https://github.com/jamesloper/easy-backblaze.git"
   },
   "keywords": [
     "backblaze",
@@ -18,9 +18,9 @@
   "author": "James Loper",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jamesloper/backblaze-easy/issues"
+    "url": "https://github.com/jamesloper/easy-backblaze/issues"
   },
-  "homepage": "https://github.com/jamesloper/backblaze-easy#readme",
+  "homepage": "https://github.com/jamesloper/easy-backblaze#readme",
   "dependencies": {
     "request": "^2.81.0"
   }
