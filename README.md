@@ -19,19 +19,18 @@ b2.uploadFile({
 
 ## Encrypt
 
-To upload a file and encrypt it with a password, via `aes-256-ctr`:
+To upload a file and encrypt it, add a password:
 
 ``` javascript
 b2.uploadFile({
-    file: '/var/tmp/test.mp4', // Required, just a path to a file
+    file: '/var/tmp/test.mp4',
     password: 'ggf96fjo' // Password
-    bucket: 'swooty' // Optional, a bucketName, uploads to first bucket by default
 }, function(err, res) {
     console.log('Done!', err, res);
 });
 ```
 
-To decrypt a file, pipe the stream through the decipher and then to the output:
+To decrypt, download and pipe the stream through the decipher:
 
 ``` javascript
 var decryptor = crypto.createDecipher('aes-256-ctr', 'ggf96fjo');
@@ -39,17 +38,6 @@ var input = fs.createReadStream('test.mp4');
 var output = fs.createWriteStream('output.mp4');
 input.pipe(decryptor).pipe(output);
 ```
-
-You can also decrypt using a buffer:
-
-``` javascript
-function decrypt(buffer){
-    var decipher = crypto.createDecipher(algorithm,password)
-    var dec = Buffer.concat([decipher.update(buffer) , decipher.final()]);
-    return dec;
-}
-```
-
 
 ## Specify Bucket Up Front
 ``` javascript
