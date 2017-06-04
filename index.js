@@ -43,7 +43,6 @@ class B2 {
 		if (options.name && !options.name instanceof String) throw new Error(400, 'name must be a string');
 		if (options.bucket && !options.bucket instanceof String) throw new Error(400, 'bucket must be a string');
 		if (options.password && !options.password instanceof String) throw new Error(400, 'password must be a string');
-		if (options.password && options.name) throw new Error(400, 'if you use a password you can not name the file');
 		
 		this.init((err, context) => {
 			if (err) return callback(err);
@@ -63,8 +62,8 @@ class B2 {
 				// If a password is specified, encrypt the file
 				if (options.password) {
 					var cipher = crypto.createCipher('aes-256-ctr', options.password);
-					fileBuffer = Buffer.concat([cipher.update(buffer), cipher.final()]);
-					options.name = crypto.randomBytes(32).toString('hex');
+					fileBuffer = Buffer.concat([cipher.update(fileBuffer), cipher.final()]);
+					if (!options.name) options.name = randomString(17);
 				}
 				
 				// Get an endpoint to upload to

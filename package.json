@@ -1,7 +1,7 @@
 {
   "name": "easy-backblaze",
-  "version": "1.1.1",
-  "description": "A simpler re-imagination of the Backblaze API. Upload a file in one call, just like in S3, auto-retry, and encryption!",
+  "version": "1.2.0",
+  "description": "A powerful, yet simple and lightweight re-imagination of the Backblaze API. Upload a file in one call, with autoretry and encryption.",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
