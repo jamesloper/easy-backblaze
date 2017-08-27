@@ -1,6 +1,6 @@
 {
   "name": "easy-backblaze",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A powerful, yet simple and lightweight re-imagination of the Backblaze API. Upload a file in one call, with autoretry and encryption.",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,5 @@
   },
   "homepage": "https://github.com/jamesloper/easy-backblaze#readme",
   "dependencies": {
-    "request": "^2.81.0"
   }
 }
