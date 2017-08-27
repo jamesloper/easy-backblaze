@@ -7,8 +7,8 @@ var B2 = require('easy-backblaze');
 var b2 = new B2('account_id', 'application_key');
 
 b2.uploadFile('/var/tmp/test.mp4', {
-    name: 'swiggity-swooty.mp4' // Optional, can override the file name
-    bucket: 'swooty' // Optional, a bucketName, default is the first bucket
+    name: 'swiggity-swooty.mp4', // Optional, renames file
+    bucket: 'swooty', // Optional, defaults to first bucket
 }, function(err, res) {
     console.log('Done!', err, res);
 });
@@ -23,7 +23,8 @@ var client = b2.uploadFile('/var/tmp/test.mp4', function(err, res) {
     console.log('Done!', err, res);
 });
 
-client.on('progress', function(progress) { // Every time 512 KB finish uploading
+client.on('progress', function(progress) {
+    // Every time 512 KB finish uploading
     console.log('Progress:', progress);
 });
 ```
@@ -36,7 +37,7 @@ To upload a file and encrypt it, just add a **password**:
 ``` javascript
 b2.uploadFile('/var/tmp/test.mp4', {
     password: 'ggf96fjo',
-    name: 'secretFileName.mp4' // Optional, file will be given a random string by default (recommended)
+    name: 'secretFileName.mp4',
 }, function(err, res) {
     console.log('Done!', err, res);
 });

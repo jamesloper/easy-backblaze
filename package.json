@@ -1,6 +1,6 @@
 {
   "name": "easy-backblaze",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A powerful, yet simple and lightweight re-imagination of the Backblaze API. Upload a file in one call, with autoretry and encryption.",
   "main": "index.js",
   "scripts": {
